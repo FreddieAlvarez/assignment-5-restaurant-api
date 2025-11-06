@@ -1,0 +1,1 @@
+Sharable link since it wouldnt let me make it public: https://www.postman.com/alvarez-freddie-7583113/workspace/freddie-s-workspace/collection/undefined?action=share&creator=49834218
