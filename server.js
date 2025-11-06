@@ -70,6 +70,16 @@ app.get("/api/menu", (req, res) => {
   res.json(menuItems);
 });
 
+// GET /api/menu/:id - Retrieve a specific menu item
+app.get("/api/menu/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const item = menuItems.find(m => m.id === id);
+  if (!item) {
+    return res.status(404).json({ message: "Item not found" });
+  }
+  res.json(item);
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
