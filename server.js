@@ -90,6 +90,17 @@ app.post("/api/menu", (req, res) => {
   res.status(201).json(newItem);
 });
 
+// PUT for Updating an existing menu item
+app.put("/api/menu/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = menuItems.findIndex(m => m.id === id);
+  if (index === -1) return res.status(404).json({ message: "Item not found" });
+
+  const updated = { id, ...req.body };
+  menuItems[index] = updated;
+  res.json(updated);
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
