@@ -1,6 +1,9 @@
 // Import packages, initialize an express app, and define the port you will use
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-
+app.use(express.json());
 
 // Data for the server
 const menuItems = [
@@ -61,3 +64,13 @@ const menuItems = [
 ];
 
 // Define routes and implement middleware here
+
+// GET /api/menu - get all menu items
+app.get("/api/menu", (req, res) => {
+  res.json(menuItems);
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
