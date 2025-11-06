@@ -101,6 +101,16 @@ app.put("/api/menu/:id", (req, res) => {
   res.json(updated);
 });
 
+// DELETE for removing a menu item
+app.delete("/api/menu/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = menuItems.findIndex(m => m.id === id);
+  if (index === -1) return res.status(404).json({ message: "Item not found" });
+
+  const deletedItem = menuItems.splice(index, 1)[0];
+  res.json(deletedItem);
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
