@@ -1,9 +1,25 @@
 // Import packages, initialize an express app, and define the port you will use
 const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
+
+// request logging middleware
+const requestLogger = (req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
+
+  // Log body for POST and PUT requests
+  if (req.method === 'POST' || req.method === 'PUT') {
+    console.log('Request Body:', JSON.stringify(req.body, null, 2));
+  }
+
+  next(); // pass control to the next middleware/route
+};
+
+// Apply the middleware
+app.use(requestLogger);
 
 // Data for the server
 const menuItems = [
@@ -82,6 +98,7 @@ app.get("/api/menu/:id", (req, res) => {
 
 //POST for adding new menu item
 app.post("/api/menu", (req, res) => {
+  console.log("Request body:", req.body); // debug line
   const newItem = {
     id: menuItems.length ? Math.max(...menuItems.map(i => i.id)) + 1 : 1,
     ...req.body
