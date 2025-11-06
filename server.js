@@ -1,5 +1,7 @@
 // Import packages, initialize an express app, and define the port you will use
 const express = require("express");
+const { body, validationResult } = require('express-validator');
+
 const app = express();
 const PORT = 3000;
 
@@ -15,11 +17,12 @@ const requestLogger = (req, res, next) => {
     console.log('Request Body:', JSON.stringify(req.body, null, 2));
   }
 
-  next(); // pass control to the next middleware/route
+  next(); 
 };
 
 // Apply the middleware
 app.use(requestLogger);
+
 
 // Data for the server
 const menuItems = [
@@ -79,6 +82,27 @@ const menuItems = [
   }
 ];
 
+// Validation Middleware
+const menuValidation = [
+  body('name').isString().isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
+  body('description').isString().isLength({ min: 10 }).withMessage('Description must be at least 10 characters long'),
+  body('price').isFloat({ gt: 0 }).withMessage('Price must be a number greater than 0'),
+  body('category').isIn(['appetizer', 'entree', 'dessert', 'beverage']).withMessage('Category must be one of: appetizer, entree, dessert, beverage'),
+  body('ingredients').isArray({ min: 1 }).withMessage('Ingredients must be an array with at least 1 item'),
+  body('available').optional().isBoolean().withMessage('Available must be true or false')
+];
+
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(err => err.msg);
+    return res.status(400).json({ error: 'Validation failed', messages: errorMessages });
+  }
+
+  if (req.body.available === undefined) req.body.available = true;
+  next();
+};
+
 // Define routes and implement middleware here
 
 // GET /api/menu - get all menu items
@@ -97,8 +121,7 @@ app.get("/api/menu/:id", (req, res) => {
 });
 
 //POST for adding new menu item
-app.post("/api/menu", (req, res) => {
-  console.log("Request body:", req.body); // debug line
+app.post("/api/menu", menuValidation, handleValidationErrors, (req, res) => {
   const newItem = {
     id: menuItems.length ? Math.max(...menuItems.map(i => i.id)) + 1 : 1,
     ...req.body
@@ -108,7 +131,7 @@ app.post("/api/menu", (req, res) => {
 });
 
 // PUT for Updating an existing menu item
-app.put("/api/menu/:id", (req, res) => {
+app.put("/api/menu/:id", menuValidation, handleValidationErrors, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const index = menuItems.findIndex(m => m.id === id);
   if (index === -1) return res.status(404).json({ message: "Item not found" });
@@ -117,7 +140,6 @@ app.put("/api/menu/:id", (req, res) => {
   menuItems[index] = updated;
   res.json(updated);
 });
-
 // DELETE for removing a menu item
 app.delete("/api/menu/:id", (req, res) => {
   const id = parseInt(req.params.id, 10);
