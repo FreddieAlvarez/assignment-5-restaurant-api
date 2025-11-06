@@ -80,6 +80,16 @@ app.get("/api/menu/:id", (req, res) => {
   res.json(item);
 });
 
+//POST for adding new menu item
+app.post("/api/menu", (req, res) => {
+  const newItem = {
+    id: menuItems.length ? Math.max(...menuItems.map(i => i.id)) + 1 : 1,
+    ...req.body
+  };
+  menuItems.push(newItem);
+  res.status(201).json(newItem);
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
